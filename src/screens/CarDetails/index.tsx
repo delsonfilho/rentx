@@ -1,85 +1,85 @@
 import React from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { BackButton } from "../../components/BackButton";
 import { ImageSlider } from "../../components/ImageSlider";
 import { Accessory } from "../../components/Accessory";
 
-import speedSvg from "../../assets/speed.svg";
-import accelerationSvg from "../../assets/acceleration.svg";
-import forceSvg from "../../assets/force.svg";
-import gasoineSvg from "../../assets/gasoline.svg";
-import exchangeSvg from "../../assets/exchange.svg";
-import peopleSvg from "../../assets/people.svg";
+import { getAccessoryIcon } from "../../utils/getAccessoryIcon";
 
 import {
-  Container,
-  Header,
-  CarImages,
-  Content,
-  Details,
-  Description,
-  Rent,
-  Brand,
-  Period,
-  Price,
-  Name,
-  About,
-  Accessories,
-  Footer,
+    Container,
+    Header,
+    CarImages,
+    Content,
+    Details,
+    Description,
+    Rent,
+    Brand,
+    Period,
+    Price,
+    Name,
+    About,
+    Accessories,
+    Footer,
 } from "./styles";
 import { Button } from "../../components/Button";
+import { CarDTO } from "../../dtos/CarDTO";
+
+interface Params {
+    car: CarDTO;
+}
 
 export function CarDetails() {
-  const navigation = useNavigation();
+    const navigation = useNavigation();
+    const route = useRoute();
 
-  function handleConfirmRental() {
-    navigation.navigate("Scheduling");
-  }
+    const { car } = route.params as Params;
 
-  function handleBackScreen() {
-    navigation.navigate("Home");
-  }
+    function handleConfirmRental() {
+        navigation.navigate("Scheduling");
+    }
 
-  return (
-    <Container>
-      <Header>
-        <BackButton onPress={handleBackScreen} />
-      </Header>
+    function handleBack() {
+        navigation.goBack();
+    }
 
-      <CarImages>
-        <ImageSlider
-          imagesUrl={[
-            "https://img2.gratispng.com/20180628/stg/kisspng-2018-audi-s5-3-0t-premium-plus-coupe-audi-rs5-2017-2018-audi-a5-coupe-5b35130451d959.0738564215302049323353.jpg",
-          ]}
-        />
-      </CarImages>
-      <Content>
-        <Details>
-          <Description>
-            <Brand>Lamborguini</Brand>
-            <Name>Huracan</Name>
-          </Description>
-          <Rent>
-            <Period></Period>
-            <Price></Price>
-          </Rent>
-        </Details>
-        <Accessories>
-          <Accessory name="380km/h" icon={speedSvg} />
-          <Accessory name="3.2s" icon={accelerationSvg} />
-          <Accessory name="800 HP" icon={forceSvg} />
-          <Accessory name="Gasolina" icon={gasoineSvg} />
-          <Accessory name="Auto" icon={exchangeSvg} />
-          <Accessory name="2 Pessoas" icon={peopleSvg} />
-        </Accessories>
-        <About>
-          Este bal bla bla bla bla blalb euahueh a uaheuah uheauh uahaeuha uehau
-          ehuaehuaheuha uhauheuah uhaeuhauehauheuahe u albaalbl
-        </About>
-      </Content>
-      <Footer>
-        <Button title="Escolher periodo do aluguel" onPress={handleConfirmRental} />
-      </Footer>
-    </Container>
-  );
+    return (
+        <Container>
+            <Header>
+                <BackButton onPress={handleBack} />
+            </Header>
+
+            <CarImages>
+                <ImageSlider imagesUrl={car.photos} />
+            </CarImages>
+            <Content>
+                <Details>
+                    <Description>
+                        <Brand>{car.brand}</Brand>
+                        <Name>{car.name}</Name>
+                    </Description>
+                    <Rent>
+                        <Period>{car.rent.period}</Period>
+                        <Price>RS {car.rent.price}</Price>
+                    </Rent>
+                </Details>
+                <Accessories>
+                    {car.accessories.map((accessory) => (
+                        <Accessory
+                            key={accessory.type}
+                            name={accessory.name}
+                            icon={getAccessoryIcon(accessory.type)}
+                        />
+                    ))}
+                </Accessories>
+                <About>{car.about}</About>
+            </Content>
+            <Footer>
+                <Button
+                    title="Escolher periodo do aluguel"
+                    onPress={handleConfirmRental}
+                />
+            </Footer>
+        </Container>
+    );
 }
