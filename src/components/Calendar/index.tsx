@@ -1,73 +1,62 @@
-import { Feather } from "@expo/vector-icons";
-import React from "react";
-import {
+import React from 'react';
+import { Feather } from '@expo/vector-icons';
+import { useTheme } from 'styled-components';
+
+import { generateInterval } from './generateInterval';
+import { ptBR } from './localeConfig';
+
+import { 
+  Calendar as CustomCalendar,
   LocaleConfig,
-  Calendar as CustomCaleandar,
-} from "react-native-calendars";
-import { useTheme } from "styled-components";
+  DateCallbackHandler,  
+} from 'react-native-calendars';
 
-LocaleConfig.locales["pt-br"] = {
-  monthNames: [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro",
-  ],
-  monthNamesShort: [
-    "Jan",
-    "Fev",
-    "Mar",
-    "Abr",
-    "Mai",
-    "Jun",
-    "Jul",
-    "Agp",
-    "Set",
-    "Out",
-    "Nov",
-    "Dez",
-  ],
-  dayNames: [
-    "Domingo",
-    "Segunda",
-    "Terça",
-    "Quarta",
-    "Quinta",
-    "Sexta",
-    "Sabado",
-  ],
-  dayNamesShort: ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"],
-  today: "Hoje",
-};
+LocaleConfig.locales['pt-br'] = ptBR;
+LocaleConfig.defaultLocale = 'pt-br';
 
-LocaleConfig.defaultLocale = "pt-br";
+interface MarkedDateProps{
+  [date: string]: {
+    color: string;
+    textColor: string;
+    disabled?: boolean;
+    disableTouchEvent?: boolean;
+  },
+}
 
-export function Calendar() {
+interface DayProps {
+  dateString: string;
+  day: number;
+  month: number;
+  year: number;  
+  timestamp: number;
+}
+
+interface CalendarProps {
+  markedDates: MarkedDateProps;
+  onDayPress: DateCallbackHandler;
+}
+
+function Calendar({ markedDates, onDayPress }: CalendarProps){
   const theme = useTheme();
+
   return (
-    <CustomCaleandar
-      renderArrow={(direction) => (
-        <Feather
+    <CustomCalendar 
+      renderArrow={( direction ) => 
+        <Feather          
           size={24}
           color={theme.colors.text}
-          name={direction == "left" ? "chevron-left" : "chevron-right"}
-        />
-      )}
+          name={direction == 'left' ? 'chevron-left' : 'chevron-right'}
+        />        
+      }
+
       headerStyle={{
         backgroundColor: theme.colors.background_secondary,
         borderBottomWidth: 0.5,
         borderBottomColor: theme.colors.text_detail,
         paddingBottom: 10,
-        marginBottom: 10,
+        marginBottom: 10
       }}
+
       theme={{
         textDayFontFamily: theme.fonts.primary_400,
         textDayHeaderFontFamily: theme.fonts.primary_500,
@@ -76,12 +65,22 @@ export function Calendar() {
         textMonthFontSize: 20,
         monthTextColor: theme.colors.title,
         arrowStyle: {
-          marginHorizontal: -15,
-        },
+          marginHorizontal: -15
+        }
       }}
 
       firstDay={1}
       minDate={new Date()}
+      markingType="period"
+      markedDates={markedDates}
+      onDayPress={onDayPress}
     />
   );
+}
+
+export {
+  Calendar,
+  MarkedDateProps,
+  DayProps,
+  generateInterval
 }

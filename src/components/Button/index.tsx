@@ -4,21 +4,30 @@ import { useTheme } from "styled-components";
 import { Container, Title } from "./styles";
 
 interface Props {
-  title: string;
-  color?: string;
-  onPress(): void;
+    title: string;
+    color?: string;
+    onPress(): void;
+    enabled?: boolean;
 }
 
-export function Button({ title, color, onPress, ...rest }: Props) {
-  const theme = useTheme();
+export function Button({
+    title,
+    color,
+    onPress,
+    enabled = true,
+    ...rest
+}: Props) {
+    const theme = useTheme();
 
-  return (
-    <Container
-      {...rest}
-      color={color ? color : theme.colors.main}
-      onPress={onPress}
-    >
-      <Title>{title}</Title>
-    </Container>
-  );
+    return (
+        <Container
+            {...rest}
+            color={color ? color : theme.colors.main}
+            onPress={onPress}
+            enabled={enabled}
+            style={{ opacity: enabled ? 1 : 0.5 }}
+        >
+            <Title>{title}</Title>
+        </Container>
+    );
 }
