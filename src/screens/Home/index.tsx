@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { StatusBar } from "react-native";
+import { StatusBar, StyleSheet } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "styled-components";
+import { RectButton, PanGestureHandler } from "react-native-gesture-handler";
+
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    useAnimatedGestureHandler
+} from "react-native-reanimated";
+
+const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
 import { api } from "../../services/api";
 
@@ -22,10 +31,21 @@ import {
     MyCarsButton,
 } from "./styles";
 
-
 export function Home() {
     const [cars, setCars] = useState<CarDTO[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const positionY = useSharedValue(0);
+    const positionX = useSharedValue(0);
+
+    const myCarButtonStyle = useAnimatedStyle(() => {
+        return {
+            transform: [
+                { translateX: positionX.value },
+                { translateY: positionY.value },
+            ],
+        };
+    });
 
     const theme = useTheme();
 
@@ -63,7 +83,7 @@ export function Home() {
             <Header>
                 <HeaderContent>
                     <Logo width={RFValue(108)} height={RFValue(12)} />
-                    <TotalCars>Total de 12 carros</TotalCars>
+                    <TotalCars>Total de {cars.length}</TotalCars>
                 </HeaderContent>
             </Header>
             {loading ? (
@@ -80,9 +100,38 @@ export function Home() {
                     )}
                 />
             )}
-            <MyCarsButton onPress={handleOpenMyCars}>
-                <Ionicons name="ios-car-sport" size={32} color={theme.colors.shape}/>
-            </MyCarsButton>
+            <PanGestureHandler onGestureEvent={} >
+                <Animated.View
+                    style={[
+                        myCarButtonStyle,
+                        { position: "absolute", bottom: 13, right: 22 },
+                    ]}
+                >
+                    <ButtonAnimated
+                        onPress={handleOpenMyCars}
+                        style={[
+                            styles.button,
+                            { backgroundColor: theme.colors.main },
+                        ]}
+                    >
+                        <Ionicons
+                            name="ios-car-sport"
+                            size={32}
+                            color={theme.colors.shape}
+                        />
+                    </ButtonAnimated>
+                </Animated.View>
+            </PanGestureHandler>
         </Container>
     );
 }
+
+const styles = StyleSheet.create({
+    button: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+});

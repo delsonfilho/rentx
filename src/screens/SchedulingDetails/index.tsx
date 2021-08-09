@@ -41,7 +41,6 @@ import {
     RentalPriceTotal,
 } from "./styles";
 
-
 interface Params {
     car: CarDTO;
     dates: string[];
@@ -53,6 +52,7 @@ interface RentalPeriod {
 }
 
 export function SchedulingDetails() {
+    const [loading, setLoading] = useState(false);
     const [rentalPeriod, setRentalPeriod] = useState<RentalPeriod>(
         {} as RentalPeriod
     );
@@ -65,20 +65,25 @@ export function SchedulingDetails() {
     const navigation = useNavigation();
 
     async function handleConfirmRental() {
+        setLoading(true);
+
         const schedulesByCar = await api.get(`/schedules_bycars/${car.id}`);
 
         const unavaible_dates = [
             ...schedulesByCar.data.unavaible_dates,
             ...dates,
         ];
-        api.post('/schedules_bycars',{
+        api.post("/schedules_bycars", {
             user_id: 1,
             car,
-            startDate: format(getPlatformDate(new Date(dates[0])), "dd/MM/yyyy"),
+            startDate: format(
+                getPlatformDate(new Date(dates[0])),
+                "dd/MM/yyyy"
+            ),
             endDate: format(
                 getPlatformDate(new Date(dates[dates.length - 1])),
                 "dd/MM/yyyy"
-            )
+            ),
         });
 
         api.put(`/schedules_bycars/${car.id}`, {
@@ -86,9 +91,10 @@ export function SchedulingDetails() {
             unavaible_dates,
         })
             .then(() => navigation.navigate("SchedulingComplete"))
-            .catch(() =>
-                Alert.alert("Não foi possivel confirmar o agendamento.")
-            );
+            .catch(() => {
+                Alert.alert("Não foi possivel confirmar o agendamento.");
+                setLoading(false);
+            });
     }
 
     function handleBack() {
@@ -169,6 +175,8 @@ export function SchedulingDetails() {
                     title="Alugar agora"
                     color={theme.colors.success}
                     onPress={handleConfirmRental}
+                    enabled={!loading}
+                    loading={loading}
                 />
             </Footer>
         </Container>
