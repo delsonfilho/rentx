@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { StatusBar, StyleSheet } from "react-native";
+import { StatusBar, StyleSheet, BackHandler } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "styled-components";
@@ -9,7 +9,8 @@ import { RectButton, PanGestureHandler } from "react-native-gesture-handler";
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
-    useAnimatedGestureHandler
+    useAnimatedGestureHandler,
+    withSpring
 } from "react-native-reanimated";
 
 const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
@@ -18,7 +19,7 @@ import { api } from "../../services/api";
 
 import Logo from "../../assets/logo.svg";
 import { Car } from "../../components/Car";
-import { Load } from "../../components/Load";
+import { LoadAnimation } from "../../components/LoadAnimation";
 
 import { CarDTO } from "../../dtos/CarDTO";
 
@@ -47,6 +48,21 @@ export function Home() {
         };
     });
 
+    const onGestureEvent = useAnimatedGestureHandler({
+        onStart(_, ctx: any) {
+            ctx.positionX = positionX.value;
+            ctx.positionY = positionY.value;
+        },
+        onActive(event, ctx: any) {
+            positionX.value = ctx.positionX + event.translationX;
+            positionY.value = ctx.positiony + event.translationY;
+        },
+        onEnd() {
+            positionX.value = withSpring(0);
+            positionY.value = withSpring(0);
+        },
+    });
+
     const theme = useTheme();
 
     const navigation = useNavigation();
@@ -73,6 +89,12 @@ export function Home() {
         fetchCars();
     }, []);
 
+    useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress',() => {
+            return true;
+        })
+    },[]);
+
     return (
         <Container>
             <StatusBar
@@ -83,11 +105,11 @@ export function Home() {
             <Header>
                 <HeaderContent>
                     <Logo width={RFValue(108)} height={RFValue(12)} />
-                    <TotalCars>Total de {cars.length}</TotalCars>
+                    { !loading && <TotalCars>Total de {cars.length}</TotalCars>}
                 </HeaderContent>
             </Header>
             {loading ? (
-                <Load />
+                <LoadAnimation />
             ) : (
                 <CarList
                     data={cars}
@@ -100,7 +122,7 @@ export function Home() {
                     )}
                 />
             )}
-            <PanGestureHandler onGestureEvent={} >
+            <PanGestureHandler onGestureEvent={onGestureEvent}>
                 <Animated.View
                     style={[
                         myCarButtonStyle,
