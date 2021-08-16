@@ -2,15 +2,17 @@ import React from "react";
 import { ActivityIndicator } from "react-native";
 ("react-native");
 import { useTheme } from "styled-components";
+import { RectButtonProps } from "react-native-gesture-handler";
 
 import { Container, Title } from "./styles";
 
-interface Props {
+interface Props extends RectButtonProps {
     title: string;
     color?: string;
-    onPress(): void;
-    enabled?: boolean;
+    //onPress(): void;
+    //enabled?: boolean;
     loading?: boolean;
+    light?: boolean;
 }
 
 export function Button({
@@ -19,6 +21,7 @@ export function Button({
     onPress,
     enabled = true,
     loading = false,
+    light = false,
     ...rest
 }: Props) {
     const theme = useTheme();
@@ -34,7 +37,7 @@ export function Button({
             {loading ? (
                 <ActivityIndicator color={theme.colors.shape} />
             ) : (
-                <Title>{title}</Title>
+                <Title light={light}>{title}</Title>
             )}
         </Container>
     );
