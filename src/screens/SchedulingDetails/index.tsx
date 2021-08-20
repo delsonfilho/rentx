@@ -60,7 +60,7 @@ export function SchedulingDetails() {
     const route = useRoute();
     const { car, dates } = route.params as Params;
 
-    const rentTotal = Number(dates.length * car.rent.price);
+    const rentTotal = Number(dates.length * car.price);
 
     const navigation = useNavigation();
 
@@ -73,6 +73,8 @@ export function SchedulingDetails() {
             ...schedulesByCar.data.unavaible_dates,
             ...dates,
         ];
+
+        console.log(unavaible_dates);
         api.post("/schedules_bycars", {
             user_id: 1,
             car,
@@ -133,8 +135,8 @@ export function SchedulingDetails() {
                         <Name>{car.name}</Name>
                     </Description>
                     <Rent>
-                        <Period>{car.rent.period}</Period>
-                        <Price>{`R$ ${car.rent.price}`}</Price>
+                        <Period>{car.period}</Period>
+                        <Price>{`R$ ${car.price}`}</Price>
                     </Rent>
                 </Details>
                 <Accessories>
@@ -171,7 +173,7 @@ export function SchedulingDetails() {
                 <RentalPrice>
                     <RentalPriceLabel>TOTAL</RentalPriceLabel>
                     <RentalPriceDetails>
-                        <RentalPriceOuota>{`$ ${car.rent.price} x${dates.length} diárias`}</RentalPriceOuota>
+                        <RentalPriceOuota>{`$ ${car.price} x${dates.length} diárias`}</RentalPriceOuota>
                         <RentalPriceTotal>R$ {rentTotal}</RentalPriceTotal>
                     </RentalPriceDetails>
                 </RentalPrice>

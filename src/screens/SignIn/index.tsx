@@ -10,6 +10,8 @@ import {
 import * as Yup from "yup";
 import { useTheme } from "styled-components";
 
+import { useAuth } from "../../hooks/auth";
+
 import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
 import { PasswordInput } from "../../components/PasswordInput";
@@ -22,6 +24,8 @@ export function SignIn() {
 
     const navigation = useNavigation();
 
+    const { signIn } = useAuth();
+
     async function handleSignIn() {
         try {
             const schema = Yup.object().shape({
@@ -31,6 +35,8 @@ export function SignIn() {
                 password: Yup.string().required("A senha é obrigatória"),
             });
             await schema.validate({ email, password });
+
+            signIn({email, password});
         } catch (error) {
             if (error instanceof Yup.ValidationError) {
                 Alert.alert("Opa", error.message);
@@ -44,10 +50,9 @@ export function SignIn() {
     }
 
     function handleNewAccount() {
-        navigation.navigate('SignUpFirstStep');
+        navigation.navigate("SignUpFirstStep");
     }
 
-    
     return (
         <KeyboardAvoidingView behavior="position" enabled>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -86,7 +91,7 @@ export function SignIn() {
                         <Button
                             title="Login"
                             onPress={handleSignIn}
-                            enabled={false}
+                            enabled={true}
                             loading={false}
                         />
                         <Button
