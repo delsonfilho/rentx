@@ -13,7 +13,7 @@ const { Navigator, Screen } = createStackNavigator();
 
 export function AppStackRoutes() {
     return (
-        <Navigator headerMode="none" initialRouteName="Home">
+        <Navigator initialRouteName="Home">
             {/*<Screen name="Splash" component={Splash} />*/}
 
             <Screen name="CarDetails" component={CarDetails} />

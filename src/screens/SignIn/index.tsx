@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {
     StatusBar,
@@ -36,7 +36,7 @@ export function SignIn() {
             });
             await schema.validate({ email, password });
 
-            signIn({email, password});
+            signIn({ email, password });
         } catch (error) {
             if (error instanceof Yup.ValidationError) {
                 Alert.alert("Opa", error.message);
@@ -50,7 +50,7 @@ export function SignIn() {
     }
 
     function handleNewAccount() {
-        navigation.navigate("SignUpFirstStep");
+        navigation.navigate('SignUpFirstStep');
     }
 
     return (

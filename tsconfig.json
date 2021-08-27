@@ -1,4 +1,4 @@
 {
-    "compilerOptions": { "strict": true, "sourceMap": true },
+    "compilerOptions": { "strict": true, "sourceMap": true,"experimentalDecorators": true },
     "extends": "expo/tsconfig.base"
 }
