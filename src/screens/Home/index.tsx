@@ -12,6 +12,7 @@ import Animated, {
     useAnimatedGestureHandler,
     withSpring,
 } from "react-native-reanimated";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
@@ -64,7 +65,7 @@ export function Home() {
     });
 
     const theme = useTheme();
-
+    const netInfo = useNetInfo();
     const navigation = useNavigation();
 
     function handleCarDetails(car: CarDTO) {
@@ -95,8 +96,13 @@ export function Home() {
 
         return () => {
             isMounted = false;
-        }
+        };
     }, []);
+
+    useEffect(() => {
+        if (netInfo.isConnected) {
+        }
+    }, [netInfo.isConnected]);
 
     return (
         <Container>
