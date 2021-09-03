@@ -5,6 +5,8 @@ import { RFValue } from "react-native-responsive-fontsize";
 //import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "styled-components";
 import { RectButton, PanGestureHandler } from "react-native-gesture-handler";
+import { synchronize } from "@nozbe/watermelondb/sync";
+import { database } from "../../database";
 
 import Animated, {
     useSharedValue,
@@ -13,16 +15,14 @@ import Animated, {
     withSpring,
 } from "react-native-reanimated";
 import { useNetInfo } from "@react-native-community/netinfo";
+import { api } from "../../services/api";
 
 const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
-import { api } from "../../services/api";
-
 import Logo from "../../assets/logo.svg";
 import { Car } from "../../components/Car";
+import { Car as ModelCar } from "../../database/model/Car";
 import { LoadAnimation } from "../../components/LoadAnimation";
-
-import { CarDTO } from "../../dtos/CarDTO";
 
 import {
     Container,
@@ -34,7 +34,7 @@ import {
 } from "./styles";
 
 export function Home() {
-    const [cars, setCars] = useState<CarDTO[]>([]);
+    const [cars, setCars] = useState<ModelCar[]>([]);
     const [loading, setLoading] = useState(true);
 
     const positionY = useSharedValue(0);
@@ -68,20 +68,41 @@ export function Home() {
     const netInfo = useNetInfo();
     const navigation = useNavigation();
 
-    function handleCarDetails(car: CarDTO) {
+    function handleCarDetails(car: ModelCar) {
         navigation.navigate("CarDetails", { car });
     }
     //function handleOpenMyCars() {
     //    navigation.navigate("MyCars");
     //}
     //
+    async function offlineSynchronize() {
+        await synchronize({
+            database,
+            pullChanges: async ({ lastPulledAt }) => {
+                const response = await api.get(
+                    `cars/sync/pull?lastPulledVersion=${lastPulledAt || 0}`
+                );
+                const { changes, lastVersion } = response.data;
+
+                return { changes, timestamp: lastVersion };
+            },
+            pushChanges: async ({ changes }) => {
+                const user = changes.users;
+                await api.post("/users/sync", user).catch(console.log);
+            },
+        });
+    }
+
     useEffect(() => {
         let isMounted = true;
         async function fetchCars() {
             try {
-                const response = await api.get("/cars");
+                const carCollection = database.get<ModelCar>("cars");
+
+                const cars = await carCollection.query().fetch();
+
                 if (isMounted) {
-                    setCars(response.data);
+                    setCars(cars);
                 }
             } catch (error) {
                 console.log(error);
@@ -100,7 +121,8 @@ export function Home() {
     }, []);
 
     useEffect(() => {
-        if (netInfo.isConnected) {
+        if (netInfo.isConnected === true) {
+            offlineSynchronize();
         }
     }, [netInfo.isConnected]);
 
